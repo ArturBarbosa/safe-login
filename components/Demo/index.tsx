@@ -188,6 +188,7 @@ const Demo: React.FC = () => {
             borderRadius="10px"
             fontSize={"16px"}
             fontWeight={"800"}
+            background={"#fff"}
           >
             {buttonLabel}
           </Button>
