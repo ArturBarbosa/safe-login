@@ -2,6 +2,17 @@ import { Data, GaussianParams } from "./types";
 import Statistics from "./Statistics";
 
 class AnomalyDetection extends Statistics {
+  /**
+   * Method: Detect Anomalies
+   * ---------------------------
+   * The method is given training and testing data and
+   * detect anomalies in the testing data by approximating
+   * a Gaussian on the training data.
+   * @param trainingData
+   * @param testingData
+   * @param epsilon
+   * @returns Data (array) with all detected anomalies
+   */
   detectAnomalies = (
     trainingData: Data,
     testingData: Data,
@@ -9,14 +20,14 @@ class AnomalyDetection extends Statistics {
   ): Data => {
     // First, estimate the Gaussian Parameters
     const params = this.estimateGaussianParameters(trainingData);
-    const e = epsilon
-      ? epsilon
-      : this.estimateEpsilonAverage(trainingData, params);
+    const e = epsilon ? epsilon : this.estimateEpsilonStd(params);
+    console.log("epsilon", e);
 
     // calculate probability of anomaly for each data point
     const anomalies: Data = [];
     for (const datapoint of testingData) {
       const prob = this.gaussianPDF(datapoint, params);
+      console.log(prob);
       if (prob < e) {
         anomalies.push(datapoint);
       }
@@ -24,6 +35,14 @@ class AnomalyDetection extends Statistics {
     return anomalies;
   };
 
+  /**
+   * Method: Estimate Gaussian Parameters
+   * --------------------
+   * Given training data, return the mean, variance and standard deviation
+   * of the data
+   * @param trainingData
+   * @returns mean, variance and std
+   */
   estimateGaussianParameters = (trainingData: Data): GaussianParams => {
     const mean = this.mean(trainingData);
     const variance = this.variance(trainingData);
@@ -31,6 +50,13 @@ class AnomalyDetection extends Statistics {
     return { mean, variance, std };
   };
 
+  /**
+   * Method: Probability Dataset is Anomalous
+   * --------------
+   * Calculate the probability that the
+   * whole testing dataset is anomalous by counting the
+   * anomalous points contained in it.
+   */
   probabilityDatasetIsAnomalous = (
     trainingData: Data,
     testingData: Data,
@@ -41,6 +67,14 @@ class AnomalyDetection extends Statistics {
     return anomalies.length / testingData.length;
   };
 
+  /**
+   * Method: Estimate Epsilon Average
+   * ----------------------
+   * Set epsilon as the average of all probabilities in the dataset
+   * @param data
+   * @param params
+   * @returns epsilon value
+   */
   estimateEpsilonAverage = (data: Data, params: GaussianParams): number => {
     let sumProbabilities = 0;
     for (const datapoint of data) {
@@ -50,6 +84,15 @@ class AnomalyDetection extends Statistics {
     return sumProbabilities / data.length;
   };
 
+  /**
+   * Method: Estimate Epsilo Minimum
+   * ----------------------
+   * Use the lowest probability in the training set (data)
+   * and set it as epsilon.
+   * @param data
+   * @param params
+   * @returns epsilon value
+   */
   estimateEpsilonMinimum = (data: Data, params: GaussianParams): number => {
     let min = 1;
     for (const datapoint of data) {
@@ -57,6 +100,19 @@ class AnomalyDetection extends Statistics {
     }
 
     return min;
+  };
+
+  /**
+   * Method: Estimate Epsilon by Standard Deviation
+   * ----------------------
+   * Set epsilon as a factor of the standard deviation
+   * @param params
+   * @param multiplier
+   * @returns epsilon value
+   */
+  estimateEpsilonStd = (params: GaussianParams, multiplier = 4): number => {
+    const point = params.std * multiplier;
+    return this.gaussianPDF(point, params);
   };
 }
 

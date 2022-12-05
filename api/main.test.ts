@@ -33,25 +33,3 @@ describe("Statistics Class", () => {
     expect(stats.variance(test3)).toBe(0);
   });
 });
-
-describe("DetectAnomalies Class", () => {
-  test("Correctly detect anomalies in dataset", () => {
-    const anon = new AnomalyDetection();
-    const testingData: Data = [1, 2, 1, 2, 3, 1, 2, 3, 4, 2, 2, 1, 3, 3, 4, 5];
-    const trainingData: Data = [3, 2, 4, 1, 5, 10, 20];
-    expect(anon.detectAnomalies(testingData, trainingData, 0.02)).toStrictEqual(
-      [10, 20]
-    );
-  });
-
-  test("Correctly returns probability of dataset being anomalous", () => {
-    const anon = new AnomalyDetection();
-    const testingData: Data = [1, 2, 1, 2, 3, 1, 2, 3, 4, 2, 2, 1, 3, 3, 4, 5];
-    const trainingData: Data = [3, 2, 4, 1, 5, 10, 20];
-    expect(
-      anon
-        .probabilityDatasetIsAnomalous(testingData, trainingData, 0.02)
-        .toFixed(3)
-    ).toBe("0.286");
-  });
-});

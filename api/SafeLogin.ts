@@ -10,6 +10,15 @@ class SafeLogin extends AnomalyDetection {
     if (historicalData) this.historicalData = historicalData;
   }
 
+  /**
+   * Method: Verify User
+   * --------------------
+   * Returns the probability that the user is the true owner
+   * of account given testing data and optional epsilon
+   * @param newData
+   * @param epsilon (optional)
+   * @returns probability that the user is true owner
+   */
   verifyUser = (newData: Data, epsilon?: number): number => {
     return (
       1 -
@@ -17,11 +26,24 @@ class SafeLogin extends AnomalyDetection {
     );
   };
 
-  addHistoricalData = (data: Data) => {
+  /**
+   * Method: Add Historical Data
+   * ---------------------
+   * For each time a user logs in and is verified,
+   * adds more data to their history
+   * @param data
+   */
+  addHistoricalData = (data: Data): void => {
     this.historicalData = [...this.historicalData, ...data];
   };
 
-  getHistoricalData = () => {
+  /**
+   * Method: Get Historical Data
+   * ---------------------
+   * Gets the stored historical data of a user
+   * @returns current historical data (array)
+   */
+  getHistoricalData = (): Data => {
     return this.historicalData;
   };
 }
