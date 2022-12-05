@@ -1,6 +1,4 @@
 import { Code, Divider, Image, Stack, Text } from "@chakra-ui/react";
-import { Fragment } from "react";
-import { CopyBlock } from "react-code-blocks";
 
 const Demo: React.FC = () => {
   return (
