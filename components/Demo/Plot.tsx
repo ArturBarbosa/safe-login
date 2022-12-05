@@ -23,11 +23,15 @@ const Plot: React.FC<Props> = ({ data, testing_data }: Props) => {
   const newPoints = testing_data.map((datapoint) => [datapoint, 0]);
   const d = data.map((datapoint) => [datapoint, 0]);
   const params = new AnomalyDetection().estimateGaussianParameters(data);
+
+  /** Calculate normal points */
   const normal: Array<Array<number>> = [];
   const stats = new Statistics();
   for (let i = Math.min(...data) - 100; i < Math.max(...data) + 100; i++) {
     normal.push([i, stats.gaussianPDF(i, params)]);
   }
+
+  /** Plot configuration */
   const config = {
     title: {
       text: "Keystroke Length Distribution",

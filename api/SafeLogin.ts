@@ -1,6 +1,11 @@
 import AnomalyDetection from "./AnomalyDetection";
 import { Data } from "./types";
 
+export interface Options {
+  epsilon?: number;
+  epsilonMethod?: "average" | "min" | "std";
+}
+
 class SafeLogin extends AnomalyDetection {
   private historicalData: Data = [];
 
@@ -16,13 +21,13 @@ class SafeLogin extends AnomalyDetection {
    * Returns the probability that the user is the true owner
    * of account given testing data and optional epsilon
    * @param newData
-   * @param epsilon (optional)
+   * @param options (optional)
    * @returns probability that the user is true owner
    */
-  verifyUser = (newData: Data, epsilon?: number): number => {
+  verifyUser = (newData: Data, options?: Options): number => {
     return (
       1 -
-      this.probabilityDatasetIsAnomalous(this.historicalData, newData, epsilon)
+      this.probabilityDatasetIsAnomalous(this.historicalData, newData, options)
     );
   };
 

@@ -1,5 +1,6 @@
 import { Data, GaussianParams } from "./types";
 import Statistics from "./Statistics";
+import { Options } from "./SafeLogin";
 
 class AnomalyDetection extends Statistics {
   /**
@@ -16,11 +17,21 @@ class AnomalyDetection extends Statistics {
   detectAnomalies = (
     trainingData: Data,
     testingData: Data,
-    epsilon?: number
+    options?: Options
   ): Data => {
+    const epsilonMethod = !options?.epsilonMethod
+      ? "std"
+      : options.epsilonMethod;
+    const epsilonMethods = {
+      average: this.estimateEpsilonAverage,
+      min: this.estimateEpsilonMinimum,
+      std: this.estimateEpsilonStd,
+    };
     // First, estimate the Gaussian Parameters
     const params = this.estimateGaussianParameters(trainingData);
-    const e = epsilon ? epsilon : this.estimateEpsilonStd(params);
+    const e = options?.epsilon
+      ? options.epsilon
+      : epsilonMethods[epsilonMethod](trainingData, params);
     console.log("epsilon", e);
 
     // calculate probability of anomaly for each data point
@@ -60,9 +71,9 @@ class AnomalyDetection extends Statistics {
   probabilityDatasetIsAnomalous = (
     trainingData: Data,
     testingData: Data,
-    epsilon?: number
+    options?: Options
   ): number => {
-    const anomalies = this.detectAnomalies(trainingData, testingData, epsilon);
+    const anomalies = this.detectAnomalies(trainingData, testingData, options);
 
     return anomalies.length / testingData.length;
   };
@@ -110,7 +121,11 @@ class AnomalyDetection extends Statistics {
    * @param multiplier
    * @returns epsilon value
    */
-  estimateEpsilonStd = (params: GaussianParams, multiplier = 4): number => {
+  estimateEpsilonStd = (
+    data: Data,
+    params: GaussianParams,
+    multiplier = 3
+  ): number => {
     const point = params.std * multiplier;
     return this.gaussianPDF(point, params);
   };
